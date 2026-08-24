@@ -1,6 +1,7 @@
-name: 构建独立备忘录 APK
+name: 构建备忘录 APK
+on: [workflow_dispatch]
 
-on:
+jobs:
   workflow_dispatch:
 
 permissions:
