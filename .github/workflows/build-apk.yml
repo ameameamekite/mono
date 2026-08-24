@@ -1,5 +1,7 @@
 name: 构建备忘录 APK
-on: [workflow_dispatch]
+
+on:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -7,18 +9,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
-        with: {distribution: temurin, java-version: '17'}
+        with:
+          distribution: temurin
+          java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
-                    - name: 解压并编译
-        shell: bash
-        run: |
-          rm -rf native
-          mkdir native
-          unzip -q memo-android-source-v1.1.zip -d native
-          gradle -p native assembleRelease --stacktrace
-
-      - name: 上传 APK
-        uses: actions/upload-artifact@v4
+        with:
+          gradle-version: '8.9'
+      - run: unzip memo-android-source-v1.1.zip -d native
+      - run: gradle -p native assembleRelease
+      - uses: actions/upload-artifact@v4
         with:
           name: memo-apk
           path: native/app/build/outputs/apk/release/*.apk
