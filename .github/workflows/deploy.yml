@@ -1,0 +1,55 @@
+name: 发布独立备忘录
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: memo-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 读取仓库
+        uses: actions/checkout@v4
+
+      - name: 解压备忘录
+        shell: bash
+        run: |
+          set -e
+          rm -rf _site
+          mkdir _site
+          unzip "备忘录-v1-独立版-完整包.zip" -d _site
+          touch _site/.nojekyll
+          echo "解压后的文件："
+          find _site -maxdepth 2 -type f
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传 Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 发布
+        id: deployment
+        uses: actions/deploy-pages@v4
