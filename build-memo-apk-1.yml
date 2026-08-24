@@ -1,7 +1,5 @@
 name: 构建备忘录 APK
-
-on:
-  workflow_dispatch:
+on: [workflow_dispatch]
 
 jobs:
   build:
@@ -18,17 +16,25 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: 解压 Android 工程
+      - name: 解压源码
         run: |
-          mkdir native
-          unzip "备忘录-Android原生提醒版-v1-源码.zip" -d native
+          rm -rf native out
+          mkdir native out
+          unzip -q "备忘录-Android原生提醒版-v1-源码.zip" -d native
 
-      - name: 构建 APK
-        run: gradle -p native assembleRelease
+      - name: 编译 APK
+        run: gradle -p native :app:assembleRelease --stacktrace
+
+      - name: 找到 APK
+        run: |
+          APK="$(find native -type f -name '*.apk' | head -n 1)"
+          test -n "$APK" || { echo "没有生成 APK"; exit 1; }
+          echo "找到：$APK"
+          cp "$APK" "out/备忘录.apk"
 
       - name: 上传 APK
         uses: actions/upload-artifact@v4
         with:
           name: 备忘录-APK
-          path: native/app/build/outputs/apk/release/*.apk
-
+          path: out/备忘录.apk
+          if-no-files-found: error
