@@ -9,8 +9,7 @@ jobs:
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
       - uses: gradle/actions/setup-gradle@v4
-              - run: rm -rf native && mkdir native && unzip -q memo-android-source-v1.1.zip -d native
-      - run: mkdir native && unzip "备忘录-Android原生提醒版-v1-源码.zip" -d native
+              - run: rm -rf native && mkdir native && unzip -q memo-android-source-v1.1.zip -d 
       - run: gradle -p native :app:assembleRelease --stacktrace
       - uses: actions/upload-artifact@v4
         with:
